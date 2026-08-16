@@ -12,7 +12,7 @@
             font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
-            background: url('Bilder/Friedhof.png') no-repeat center center fixed; /* Hintergrundbild */
+            background: url('images/Friedhof.png') no-repeat center center fixed; /* Hintergrundbild */
             background-size: cover; /* Bild skaliert, um den gesamten Bildschirm abzudecken */
             color: #333;
             display: flex;
@@ -218,7 +218,7 @@
         <div class="status" id="status">Versuche, das Wort zu erraten!</div>
 
         <div class="gallows-container">
-            <img id="gallowsImage" src="Bilder/hm01.png" alt="Galgenmännchen" />
+            <img id="gallowsImage" src="images/hm01.png" alt="Galgenmännchen" />
         </div>
 
         <div class="input-container">
@@ -230,7 +230,7 @@
 		<button class="goBack-btn" onclick="goBack()">Zurück zur Auswahl</button>
     </div>
 	
-		<script src="Hangman Wörter.js"></script>
+		<script src="words.js"></script>
 		
 	<script>
 	
@@ -241,9 +241,9 @@
 		let gameOver = false;
 		
 		const gallowsImages = [
-            "Bilder/hm01.png", "Bilder/hm02.png", "Bilder/hm03.png", "Bilder/hm04.png", 
-            "Bilder/hm05.png", "Bilder/hm06.png", "Bilder/hm07.png", "Bilder/hm08.png", "Bilder/hm09.png",
-            "Bilder/hm010.png", "Bilder/hm010.png", "Bilder/hm011.png"
+            "images/hm01.png", "images/hm02.png", "images/hm03.png", "images/hm04.png", 
+            "images/hm05.png", "images/hm06.png", "images/hm07.png", "images/hm08.png", "images/hm09.png",
+            "images/hm010.png", "images/hm010.png", "images/hm011.png"
         ];
 			
 		// Thema aus URL-Parameter holen
@@ -405,7 +405,7 @@ function guessLetter() {
             statusEl.textContent = "Du hast gewonnen!";
             statusEl.classList.add('win-message');
             statusEl.classList.remove('lose-message');
-            document.getElementById('gallowsImage').src = "Bilder/siegerbild.png";
+            document.getElementById('gallowsImage').src = "images/siegerbild.png";
             endGame();
         }
 
