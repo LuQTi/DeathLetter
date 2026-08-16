@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hangman - Themenauswahl</title>
+
+<style>
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: url('Bilder/Friedhof.png') no-repeat center center fixed;
+    background-size: cover;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    backdrop-filter: blur(8px);
+}
+
+.container {
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 12px;
+    width: 100%;
+    max-width: 480px;
+    padding: 40px 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    text-align: center;
+    animation: fadeIn 1s ease-out;
+}
+
+h1 {
+    font-size: 2.4em;
+    color: #fff;
+    margin-bottom: 30px;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+    font-weight: bold;
+}
+
+form {
+    background-color: rgba(0, 0, 0, 0);
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out;
+}
+
+label {
+    font-size: 1.3em;
+    color: #fff;
+    margin-bottom: 12px;
+    display: block;
+    text-align: left;
+}
+
+#categoryField {
+    width: 100%;             /* volle Breite wie der Button */
+    box-sizing: border-box;  /* Padding & Border werden in die Breite eingerechnet */
+    padding: 14px;
+    font-size: 1.2em;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    margin-bottom: 25px;
+    outline: none;
+    color: #fff;
+    background-color: rgba(0,0,0,0.6); /* bleibt halbtransparent */
+    cursor: pointer;
+    text-align: left; /* wie vorher */
+    transition: border 0.3s ease, background-color 0.3s ease;
+}
+
+#categoryField:hover {
+    border-color: #4CAF50;
+    background-color: rgba(0,0,0,0.8); /* bleibt wie vorher */
+}
+
+button {
+    width: 100%;
+    padding: 14px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+    background-color: #45a049;
+    transform: scale(1.05);
+}
+
+button:active {
+    background-color: #388e3c;
+}
+
+/* Overlay */
+.overlay {
+    position: fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background: rgba(0,0,0,0.9); /* etwas dunkler, aber elegant */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 30px;
+    box-sizing: border-box;
+    visibility: hidden;
+    opacity: 0;
+	pointer-events: none;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 10;
+}
+
+.overlay.show {
+    visibility: visible;
+    opacity: 1;
+	pointer-events: auto;
+}
+
+.overlay h2 {
+    color: #fff;
+    margin-bottom: 25px;
+    font-size: 1.8em;
+    text-align: center;
+    text-shadow: 1px 1px 6px rgba(0,0,0,0.4);
+}
+
+.button-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+    max-width: 600px; /* begrenzt die Breite */
+}
+
+.button-grid button {
+    flex: 1 1 30%;
+    max-width: 200px;
+    padding: 14px 0;
+    border-radius: 12px;
+    border: none;
+    background-color: #4CAF50;
+    color: #fff;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.3); /* leichter Schatten für Tiefe */
+    transition: 0.3s;
+}
+
+.button-grid button:hover {
+    background-color: #45a049;
+    transform: scale(1.05);
+}
+
+.close-btn {
+	margin-top: 50px;
+    max-width: 200px;
+    padding: 14px 0;
+    border-radius: 12px;
+    border: none;
+    background-color: red;
+    color: white;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.3); /* leichter Schatten für Tiefe */
+    transition: 0.3s;
+}
+
+.close-btn:hover {
+    background-color: #b71c1c;
+    transform: scale(1.05);
+}
+
+@keyframes fadeIn {
+    0% {opacity:0; transform: translateY(20px);}
+    100% {opacity:1; transform: translateY(0);}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>Herzlich Willkommen auf meinem Friedhof</h1>
+    
+    <form action="Hangman.html" method="GET">
+		<label for="category">Wähle ein Thema:</label>
+		<input type="text" id="categoryField" readonly value="Standard (150)">
+		<input type="hidden" id="categoryKey" name="category" value="Standard">
+		<button type="submit">Starten</button>
+	</form>
+
+</div>
+
+<!-- Overlay -->
+<div class="overlay" id="overlay">
+    <h2>Wähle dein Thema</h2>
+    <div class="button-grid">
+        <button onclick="selectCategory(this,'Standard')" class="selected">Standard (150)</button>
+        <button onclick="selectCategory(this,'Tiere')">Tiere (50)</button>
+        <button onclick="selectCategory(this,'Lebensmittel')">Lebensmittel (50)</button>
+        <button onclick="selectCategory(this,'Länder')">Länder (50)</button>
+        <button onclick="selectCategory(this,'Städte')">Städte (50)</button>
+        <button onclick="selectCategory(this,'Berufe')">Berufe (50)</button>
+        <button onclick="selectCategory(this,'Farben')">Farben (50)</button>
+        <button onclick="selectCategory(this,'Eishockey')">Eishockey (50)</button>
+        <button onclick="selectCategory(this,'Volleyball')">Volleyball (50)</button>
+        <button onclick="selectCategory(this,'Pflanzen')">Pflanzen (30)</button>
+        <button onclick="selectCategory(this,'Elemente')">Elemente (30)</button>
+    </div>
+    <button class="close-btn" onclick="closeOverlay()">Abbrechen</button>
+</div>
+
+<script>
+const overlay = document.getElementById('overlay');
+const categoryField = document.getElementById('categoryField');
+
+// Standard Kategorie
+let selectedCategory = 'Standard';
+
+// Overlay öffnen bei Klick
+categoryField.addEventListener('click', () => {
+    overlay.classList.add('show');
+});
+
+// Kategorie auswählen
+function selectCategory(button, key) {
+    // key = der interne Wert ohne Klammern, z.B. "Tiere"
+    selectedCategory = key;
+    categoryField.value = button.textContent;  // sichtbar inkl. Zahl
+    document.getElementById('categoryKey').value = key; // wird ans Formular übergeben
+    document.querySelectorAll('.button-grid button').forEach(b => b.classList.remove('selected'));
+    button.classList.add('selected');
+    overlay.classList.remove('show');
+}
+
+// Overlay schließen
+function closeOverlay() {
+    overlay.classList.remove('show');
+}
+</script>
+
+</body>
+</html>

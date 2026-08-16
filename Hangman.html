@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangman - Spiel</title>
+
+	<style>
+	
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('Bilder/Friedhof.png') no-repeat center center fixed; /* Hintergrundbild */
+            background-size: cover; /* Bild skaliert, um den gesamten Bildschirm abzudecken */
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            backdrop-filter: blur(8px); /* Weichzeichner-Effekt für den Hintergrund */
+        }
+
+        .game-container {
+            text-align: center;
+            border: 2px solid #333;
+            padding: 20px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            width: 340px;
+            position: relative;
+			animation: fadeIn 1s ease-out;
+        }
+		
+		/* Animation */
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+			color: white;
+        }
+
+        .word {
+            font-size: 32px;
+            margin-bottom: 20px;
+			color: #39ff14; /* Neon Grün */
+			height:80px;
+        }
+		
+		.word span {
+			display: inline-block;       /* Jeder Buchstabe/Strich wird Block ähnlich */
+			width: 32px;                 /* Feste Breite für Buchstaben und Striche */
+			text-align: center;           /* Buchstaben zentrieren */
+		}
+		
+		/* Stil für das Wort im Verlustfall */
+		#wordDisplay.lose {
+			color: red; /* Wort in Rot, wenn das Spiel verloren ist */
+			font-weight: bold;
+		}
+
+        .incorrect-letters {
+            margin-top: 20px;
+			margin-left: 20px;
+            font-size: 18px;
+			color: red;
+			text-align: left;
+        }
+
+        .status {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 20px;
+			color: white;
+        }
+
+        .reset-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin-top: 20px;
+			margin-right: 30px;
+            position: absolute;
+            right: 20px;
+            bottom: 20px;
+        }
+
+        .reset-btn:hover {
+            background-color: #45a049;
+        }
+		
+		/* Stil für den Zurück-Button */
+		.goBack-btn {
+			padding: 10px 20px;
+			font-size: 16px;
+			cursor: pointer;
+			background-color: #2196F3; /* Blaue Farbe für den Button */
+			color: white;
+			border: none;
+			border-radius: 5px;
+			margin-top: 20px;
+			transition: background-color 0.3s, transform 0.2s ease; /* Übergangseffekte */
+			margin-right: 100px;
+		}
+
+		.goBack-btn:hover {
+			background-color: #1976D2; /* Dunkleres Blau beim Hover */
+			transform: scale(1.05); /* Leichte Vergrößerung des Buttons beim Hover */
+		}
+
+        .input-container {
+            margin-top: 20px;
+        }
+
+        .letter-input {
+            width: 40px;
+            font-size: 24px;
+            text-align: center;
+            margin: 0 5px;
+        }
+
+        .gallows-container {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        #gallowsImage {
+            margin-top: -15px;
+            width: 200px;
+            height: auto;
+        }
+		
+		/* Stil für die Eingabebox bei richtiger und falscher Eingabe */
+		.letter-input.correct {
+			border: 2px solid green;
+			background-color: #e8f5e9; /* Helles Grün */
+			animation: glowGreen 0.5s ease-in-out;
+		}
+
+		.letter-input.incorrect {
+			border: 2px solid red;
+			background-color: #ffebee; /* Helles Rot */
+			animation: glowRed 0.5s ease-in-out;
+		}
+
+		/* Grüne Leucht-Animation */
+		@keyframes glowGreen {
+			0% {
+				box-shadow: 0 0 5px green, 0 0 10px green, 0 0 15px green;
+			}
+			50% {
+				box-shadow: 0 0 10px green, 0 0 20px green, 0 0 25px green;
+			}
+			100% {
+				box-shadow: 0 0 5px green, 0 0 10px green, 0 0 15px green;
+			}
+		}
+
+		/* Rote Leucht-Animation */
+		@keyframes glowRed {
+			0% {
+				box-shadow: 0 0 5px red, 0 0 10px red, 0 0 15px red;
+			}
+			50% {
+				box-shadow: 0 0 10px red, 0 0 20px red, 0 0 25px red;
+			}
+			100% {
+				box-shadow: 0 0 5px red, 0 0 10px red, 0 0 15px red;
+			}
+		}
+
+        /* Grüne Farbe für "GEWONNEN!" */
+        .win-message {
+            color: #39ff14; /* Neon Grün */
+        }
+
+        /* Rote Farbe für "GAME OVER" */
+        .lose-message {
+            color: red;
+        }
+		
+		/* Aufleuchten-Effekt */
+@keyframes flash {
+  0% { color:orange; }
+  50% { color:yellow; }
+  100% { color:orange; }
+}
+
+.status.flash {
+  animation: flash 0.7s ease-in-out 0s 3;
+}
+		
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <h1 id="gameTitle">Hangman</h1>
+
+        <div class="word" id="wordDisplay">_ _ _ _ _</div>
+        <div class="incorrect-letters" id="incorrectLetters"></div>
+        <div class="status" id="status">Versuche, das Wort zu erraten!</div>
+
+        <div class="gallows-container">
+            <img id="gallowsImage" src="Bilder/hm01.png" alt="Galgenmännchen" />
+        </div>
+
+        <div class="input-container">
+            <input type="text" id="letterInput" class="letter-input" maxlength="1" autofocus />
+            <button onclick="guessLetter()">Raten</button>
+        </div>
+
+        <button class="reset-btn" onclick="resetGame()">Reset</button>
+		<button class="goBack-btn" onclick="goBack()">Zurück zur Auswahl</button>
+    </div>
+	
+		<script src="Hangman Wörter.js"></script>
+		
+	<script>
+	
+		let selectedWord = '';
+		let guessedLetters = [];
+		let incorrectLetters = [];
+		let remainingAttempts = 10;
+		let gameOver = false;
+		
+		const gallowsImages = [
+            "Bilder/hm01.png", "Bilder/hm02.png", "Bilder/hm03.png", "Bilder/hm04.png", 
+            "Bilder/hm05.png", "Bilder/hm06.png", "Bilder/hm07.png", "Bilder/hm08.png", "Bilder/hm09.png",
+            "Bilder/hm010.png", "Bilder/hm010.png", "Bilder/hm011.png"
+        ];
+			
+		// Thema aus URL-Parameter holen
+        const urlParams = new URLSearchParams(window.location.search);
+        const category = urlParams.get('category');
+		
+		// Füge den Namen der Kategorie zum Titel hinzu
+		const gameTitle = document.getElementById('gameTitle');
+		let categoryName = category.charAt(0).toUpperCase() + category.slice(1);  // Erste Buchstabe groß machen
+
+		// Setze den Titel abhängig von der Kategorie
+		gameTitle.textContent = `Hangman - ${categoryName}`;
+
+        if (!category || !wordList[category]) {
+            alert("Ungültiges Thema!");
+            window.location.href = "index.html"; // Zurück zur Auswahlseite
+        }
+
+        let selectedList = wordList[category];
+        startGame();
+		
+		// Spiel starten
+        function startGame() {
+            selectedWord = selectedList[Math.floor(Math.random() * selectedList.length)];
+            guessedLetters = Array(selectedWord.length).fill('_');
+            incorrectLetters = [];
+            remainingAttempts = 10;
+            gameOver = false;
+
+            updateDisplay();
+			
+			document.getElementById('status').textContent = "Versuche, das Wort zu erraten!";
+            document.getElementById('gallowsImage').src = gallowsImages[0];
+            document.getElementById('letterInput').disabled = false;
+			document.getElementById('wordDisplay').classList.remove('lose'); // Entferne die "lose"-Klasse bei Spielbeginn
+
+            document.getElementById('letterInput').focus();
+        }
+
+        // Anzeige aktualisieren
+		function updateDisplay() {
+			const wordDisplay = document.getElementById('wordDisplay');
+			wordDisplay.innerHTML = ''; // Leeren des bestehenden Inhalts
+
+			// Gehe durch die Buchstaben und füge sie dem HTML hinzu
+			for (let i = 0; i < guessedLetters.length; i++) {
+				const letterSpan = document.createElement('span');
+				
+				// Wenn der Buchstabe korrekt ist, und es der erste ist, setze ihn in Großbuchstaben
+				if (guessedLetters[i] !== '_') {
+					letterSpan.textContent = (i === 0) ? guessedLetters[i].toUpperCase() : guessedLetters[i];
+				} else {
+					letterSpan.textContent = guessedLetters[i];
+				}
+
+				wordDisplay.appendChild(letterSpan);
+
+				// Füge ein Leerzeichen nach jedem Buchstaben hinzu, außer beim letzten
+				if (i < guessedLetters.length - 1) {
+					wordDisplay.appendChild(document.createTextNode(' '));
+				}
+			}
+            document.getElementById('incorrectLetters').textContent =
+                "Buchstaben: " + incorrectLetters.join(', ');
+				
+            // Nur den Status aktualisieren, wenn das Spiel noch läuft
+    if (!gameOver) {
+        document.getElementById('status').textContent =
+            `Versuche übrig: ${remainingAttempts}`;
+    }
+        }
+
+    let flashTimeout; // globale Variable, um das Timeout zu speichern
+
+function guessLetter() {
+    if (gameOver) return;
+
+    const statusEl = document.getElementById('status');
+    const input = document.getElementById('letterInput');
+
+    // **Laufende Flash-Animation abbrechen**
+    statusEl.classList.remove('flash');
+    if (flashTimeout) {
+        clearTimeout(flashTimeout); // Timeout stoppen
+        flashTimeout = null;
+    }
+    if (!gameOver) {
+        statusEl.textContent = `Versuche übrig: ${remainingAttempts}`;
+    }
+
+    const letter = input.value.toLowerCase();
+    input.value = '';
+
+    // Hilfsfunktion für Meldungen
+    function showMessage(msg) {
+    // Text ändern
+    statusEl.textContent = msg;
+
+    // Alte Animation abbrechen
+    statusEl.classList.remove('flash');
+    if (flashTimeout) {
+        clearTimeout(flashTimeout);
+        flashTimeout = null;
+    }
+
+    // **Kurzer Reflow, damit Animation neu getriggert wird**
+    void statusEl.offsetWidth;
+
+    // Klasse wieder hinzufügen
+    statusEl.classList.add('flash');
+
+    // Timeout speichern, um Animation nach 2s zu beenden
+    flashTimeout = setTimeout(() => {
+        statusEl.classList.remove('flash');
+        flashTimeout = null;
+        if (!gameOver) {
+            statusEl.textContent = `Versuche übrig: ${remainingAttempts}`;
+        }
+    }, 2000);
+}
+
+    // Warnungen für Umlaute
+    if (letter === 'ä') { showMessage("Bitte gib statt 'ä' → 'ae' ein!"); return; }
+    if (letter === 'ö') { showMessage("Bitte gib statt 'ö' → 'oe' ein!"); return; }
+    if (letter === 'ü') { showMessage("Bitte gib statt 'ü' → 'ue' ein!"); return; }
+    if (letter === 'ß') { showMessage("Bitte gib statt 'ß' → 'ss' ein!"); return; }
+
+    if (!letter || letter.length !== 1 || !/[a-z]/.test(letter)) {
+        showMessage("Bitte einen Buchstaben eingeben!");
+        return;
+    }
+
+    if (guessedLetters.includes(letter) || incorrectLetters.includes(letter)) {
+        showMessage("Buchstabe wurde schon benutzt!");
+        return;
+    }
+
+    // Eingabebox hervorheben
+    if (selectedWord.includes(letter)) {
+        input.classList.add('correct');
+        input.classList.remove('incorrect');
+    } else {
+        input.classList.add('incorrect');
+        input.classList.remove('correct');
+    }
+
+    // Animation zurücksetzen
+    input.style.animation = 'none';
+    void input.offsetHeight;
+    input.style.animation = '';
+
+    // Buchstabe korrekt?
+    if (selectedWord.includes(letter)) {
+        for (let i = 0; i < selectedWord.length; i++) {
+            if (selectedWord[i] === letter) guessedLetters[i] = letter;
+        }
+
+        if (!guessedLetters.includes('_')) {
+            statusEl.textContent = "Du hast gewonnen!";
+            statusEl.classList.add('win-message');
+            statusEl.classList.remove('lose-message');
+            document.getElementById('gallowsImage').src = "Bilder/siegerbild.png";
+            endGame();
+        }
+
+    } else {
+        incorrectLetters.push(letter);
+        remainingAttempts--;
+
+        let errorCount = 10 - remainingAttempts;
+        document.getElementById('gallowsImage').src = gallowsImages[errorCount];
+
+        if (remainingAttempts <= 0) {
+            statusEl.textContent = "Du hast verloren!";
+            statusEl.classList.add('lose-message');
+            statusEl.classList.remove('win-message');
+
+            const wordDisplay = document.getElementById('wordDisplay');
+            wordDisplay.classList.add('lose');
+            wordDisplay.innerHTML = '';
+            guessedLetters = selectedWord.split('');
+            for (let i = 0; i < guessedLetters.length; i++) {
+                const letterSpan = document.createElement('span');
+                letterSpan.textContent = guessedLetters[i].toUpperCase();
+                wordDisplay.appendChild(letterSpan);
+                if (i < guessedLetters.length - 1) {
+                    wordDisplay.appendChild(document.createTextNode(' '));
+                }
+            }
+
+            document.getElementById('gallowsImage').src = gallowsImages[11];
+            endGame();
+        }
+    }
+
+    updateDisplay();
+}
+
+        // Beendet das Spiel (Eingabe sperren)
+        function endGame() {
+            gameOver = true;
+            document.getElementById('letterInput').disabled = true;
+        }
+		
+		// Zurück zur Auswahlseite
+        function goBack() {
+            window.location.href = "index.html";
+        }
+
+        // Spiel zurücksetzen
+        function resetGame() {
+            startGame();
+			const statusEl = document.getElementById('status');
+			
+            // Status zurücksetzen
+			statusEl.textContent = "Versuche, das Wort zu erraten!";
+			statusEl.classList.remove('win-message', 'lose-message', 'flash');
+			
+			document.getElementById('gallowsImage').src = gallowsImages[0];
+        }
+
+        // Start beim Laden der Seite
+        startGame();
+
+        // Enter-Taste = Buchstaben raten oder Reset
+        document.body.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+				// Wenn das Spiel vorbei ist, den Reset-Button drücken
+                if (gameOver) {
+                    resetGame();
+                } else {
+                    guessLetter();
+                }
+            }
+        });
+		
+		// Fokus immer auf das Eingabefeld setzen
+		document.body.addEventListener('click', function() {
+			document.getElementById('letterInput').focus();
+	});
+
+
+    </script>
+
+</body>
+</html>
