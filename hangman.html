@@ -1030,6 +1030,23 @@
 
         ];
 
+// =========================================
+// BILDER VORLADEN
+// =========================================
+
+gallowsImages.forEach(src => {
+    const img = new Image();
+    img.src = src;
+});
+
+// Siegerbild ebenfalls vorladen
+const winnerImage = new Image();
+winnerImage.src = "images/siegerbild.png";
+
+// Hintergrund vorladen
+const backgroundImage = new Image();
+backgroundImage.src = "images/Friedhof.png";
+
 
         /* =========================================
            HTML-ELEMENTE
