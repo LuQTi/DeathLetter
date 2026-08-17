@@ -135,16 +135,22 @@ button:active {
 }
 
 .button-grid {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
-    max-width: 600px; /* begrenzt die Breite */
+    width: 100%;
+    max-width: 600px;
+}
+
+/* Standard alleine oben in der Mitte */
+.standard-btn {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: 50%;
 }
 
 .button-grid button {
-    flex: 1 1 30%;
-    max-width: 200px;
+    width: 100%;
     padding: 14px 0;
     border-radius: 12px;
     border: none;
@@ -153,13 +159,19 @@ button:active {
     font-size: 1.1em;
     font-weight: bold;
     cursor: pointer;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.3); /* leichter Schatten für Tiefe */
+    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
     transition: 0.3s;
 }
 
 .button-grid button:hover {
     background-color: #45a049;
     transform: scale(1.05);
+}
+
+.button-grid button.selected {
+    background-color: #2e7d32;
+    box-shadow: 0 0 0 3px #81c784, 0 4px 10px rgba(0,0,0,0.5);
+    transform: scale(1.03);
 }
 
 .close-btn {
@@ -265,6 +277,18 @@ form button {
     gap: 10px;
 }
 
+.standard-btn {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: 50%;
+}
+
+@media (max-width: 500px) {
+    .standard-btn {
+        width: 75%;
+    }
+}
+
 .button-grid button {
     width: 100%;
     max-width: none;
@@ -325,7 +349,7 @@ form button {
     
     <form action="hangman.html" method="GET">
 		<label for="category">Wähle ein Thema:</label>
-		<input type="text" id="categoryField" readonly value="Standard (150)">
+		<input type="text" id="categoryField" readonly value="Standard (200)">
 		<input type="hidden" id="categoryKey" name="category" value="Standard">
 		<button type="submit">Starten</button>
 	</form>
@@ -336,9 +360,9 @@ form button {
 <div class="overlay" id="overlay">
     <h2>Wähle dein Thema</h2>
     <div class="button-grid">
-        <button onclick="selectCategory(this,'Standard')" class="selected">Standard (150)</button>
-        <button onclick="selectCategory(this,'Tiere')">Tiere (50)</button>
-        <button onclick="selectCategory(this,'Lebensmittel')">Lebensmittel (50)</button>
+        <button onclick="selectCategory(this,'Standard')" class="standard-btn selected">Standard (200)</button>
+        <button onclick="selectCategory(this,'Tiere')">Tiere (100)</button>
+        <button onclick="selectCategory(this,'Lebensmittel')">Lebensmittel (100)</button>
         <button onclick="selectCategory(this,'Länder')">Länder (50)</button>
         <button onclick="selectCategory(this,'Städte')">Städte (50)</button>
         <button onclick="selectCategory(this,'Berufe')">Berufe (50)</button>
