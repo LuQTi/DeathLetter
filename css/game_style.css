@@ -1,0 +1,813 @@
+	* {
+            box-sizing: border-box;
+        }
+
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+
+        body {
+
+            font-family: Arial, sans-serif;
+
+            background:
+                url('../images/Friedhof.png')
+                no-repeat
+                center
+                center
+                fixed;
+
+            background-size: cover;
+
+            color: #333;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            min-height: 100vh;
+            min-height: 100dvh;
+
+            overflow: hidden;
+
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+
+            padding: 10px;
+        }
+
+
+        /* =========================================
+           SPIEL-CONTAINER
+           ========================================= */
+
+        .game-container {
+
+            width: min(420px, 94vw);
+
+            max-height: 96vh;
+            max-height: 96dvh;
+
+            text-align: center;
+
+            border: 2px solid #333;
+            border-radius: 12px;
+
+            padding: 20px;
+
+            background: rgba(0, 0, 0, 0.65);
+
+            position: relative;
+
+            animation: fadeIn 1s ease-out;
+
+            overflow-y: auto;
+            overflow-x: hidden;
+
+            box-shadow:
+                0 5px 25px rgba(0, 0, 0, 0.5);
+
+            -webkit-overflow-scrolling: touch;
+        }
+
+
+        /* =========================================
+           ANIMATION
+           ========================================= */
+
+        @keyframes fadeIn {
+
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+        }
+
+
+        /* =========================================
+           TITEL
+           ========================================= */
+
+        h1 {
+
+            font-size: clamp(20px, 6vw, 28px);
+
+            line-height: 1.2;
+
+            margin: 0 0 20px 0;
+
+            color: white;
+
+            word-break: break-word;
+        }
+
+
+        /* =========================================
+           WORT
+           ========================================= */
+
+        .word {
+
+            width: 100%;
+
+            min-height: 50px;
+            height: auto;
+
+            margin: 0 auto 8px auto;
+
+            display: flex;
+
+            justify-content: center;
+            align-items: center;
+
+            flex-wrap: wrap;
+
+            color: #39ff14;
+
+            font-size: clamp(22px, 7vw, 30px);
+
+            line-height: 1.35;
+
+            overflow: visible;
+
+            overflow-wrap: anywhere;
+
+            padding: 0 2px;
+        }
+
+
+        .word span {
+
+            display: inline-flex;
+
+            width: 26px;
+            min-width: 26px;
+
+            height: 38px;
+
+            justify-content: center;
+            align-items: center;
+
+            text-align: center;
+
+            flex: 0 0 26px;
+        }
+
+
+        #wordDisplay.lose {
+
+            color: red;
+
+            font-weight: bold;
+        }
+
+
+        /* =========================================
+           STATUS
+           ========================================= */
+
+        .status {
+
+            font-size: 19px;
+
+            font-weight: bold;
+
+            line-height: 1.3;
+
+            margin-top: 15px;
+
+            min-height: 30px;
+
+            color: white;
+        }
+
+
+        /* =========================================
+           GALGEN
+           ========================================= */
+
+        .gallows-container {
+
+            margin-top: 15px;
+
+            text-align: center;
+        }
+
+
+        #gallowsImage {
+
+            display: block;
+
+            width: min(200px, 55vw);
+
+            max-height: 190px;
+
+            height: auto;
+
+            object-fit: contain;
+
+            margin: 0 auto;
+        }
+
+
+        /* =========================================
+           BILDSCHIRM-TASTATUR
+           ========================================= */
+
+        .keyboard {
+
+            width: 100%;
+
+            margin-top: 15px;
+
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+
+            gap: 6px;
+        }
+
+
+        .keyboard-row {
+
+            display: flex;
+
+            justify-content: center;
+
+            gap: 5px;
+
+            width: 100%;
+        }
+
+
+        .key {
+
+            width: 34px;
+
+            height: 40px;
+
+            padding: 0;
+
+            border: none;
+
+            border-radius: 5px;
+
+            background-color: #555;
+
+            color: white;
+
+            font-size: 15px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            transition:
+                background-color 0.15s,
+                transform 0.1s,
+                box-shadow 0.15s;
+
+            touch-action: manipulation;
+
+            -webkit-tap-highlight-color: transparent;
+        }
+
+
+        .key:hover {
+
+            background-color: #666;
+
+            transform: translateY(-1px);
+        }
+
+
+        .key:active {
+
+            transform: scale(0.94);
+        }
+
+
+        /* Noch nicht benutzt */
+
+        .key.available {
+
+            background-color: #555;
+        }
+
+
+        /* Richtiger Buchstabe */
+
+        .key.correct {
+
+            background-color: #2e9b3f;
+
+            box-shadow:
+                0 0 8px rgba(57, 255, 20, 0.6);
+        }
+
+
+        /* Falscher Buchstabe */
+
+        .key.incorrect {
+
+            background-color: #b52b2b;
+
+            box-shadow:
+                0 0 8px rgba(255, 0, 0, 0.5);
+        }
+
+
+        /* Deaktivierte Taste */
+
+        .key:disabled {
+
+            cursor: default;
+
+            opacity: 1;
+        }
+
+
+        /* =========================================
+           TASTEN-ANIMATIONEN
+           ========================================= */
+
+        @keyframes keyCorrect {
+
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.15);
+                box-shadow:
+                    0 0 15px #39ff14;
+            }
+
+            100% {
+                transform: scale(1);
+            }
+
+        }
+
+
+        @keyframes keyIncorrect {
+
+            0% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-4px);
+            }
+
+            50% {
+                transform: translateX(4px);
+            }
+
+            75% {
+                transform: translateX(-3px);
+            }
+
+            100% {
+                transform: translateX(0);
+            }
+
+        }
+
+
+        .key.correct.animate {
+
+            animation:
+                keyCorrect 0.4s ease-in-out;
+        }
+
+
+        .key.incorrect.animate {
+
+            animation:
+                keyIncorrect 0.35s ease-in-out;
+        }
+
+
+        /* =========================================
+           GEWONNEN / VERLOREN
+           ========================================= */
+
+        .win-message {
+
+            color: #39ff14;
+        }
+
+
+        .lose-message {
+
+            color: red;
+        }
+
+
+        /* =========================================
+           BUTTONS
+           ========================================= */
+
+        .bottom-buttons {
+
+            display: flex;
+
+            justify-content: center;
+
+            flex-wrap: wrap;
+
+            gap: 6px;
+
+            margin-top: 12px;
+        }
+
+
+        .reset-btn,
+        .goBack-btn {
+
+            width: auto;
+
+            height: 36px;
+
+            min-height: 36px;
+
+            padding: 0 14px;
+
+            font-size: 13px;
+
+            line-height: 36px;
+
+            cursor: pointer;
+
+            color: white;
+
+            border: none;
+
+            border-radius: 5px;
+
+            margin: 0;
+
+            transition:
+                background-color 0.2s,
+                transform 0.2s;
+
+            touch-action: manipulation;
+        }
+
+
+        /* Reset */
+
+        .reset-btn {
+
+            background-color: #e53935;
+        }
+
+
+        .reset-btn:hover {
+
+            background-color: #c62828;
+        }
+
+        
+        .reset-btn.new-round {
+
+    	    background-color: #2e9b3f;
+	}
+
+
+	.reset-btn.new-round:hover {
+
+    	    background-color: #247d32;
+	}
+
+
+        /* Zurück */
+
+        .goBack-btn {
+
+            background-color: #2196F3;
+        }
+
+
+        .goBack-btn:hover {
+
+            background-color: #1976D2;
+        }
+
+
+        /* =========================================
+           TOUCH-GERÄTE
+           ========================================= */
+
+        @media (hover: none) {
+
+            button:hover {
+
+                transform: none;
+            }
+
+        }
+
+
+        /* =========================================
+           HANDY
+           ========================================= */
+
+        @media (max-width: 600px) {
+
+            body {
+
+                padding: 8px;
+
+                overflow: hidden;
+            }
+
+
+            .game-container {
+
+                width: 94vw;
+
+                max-width: 380px;
+
+                max-height: none;
+
+                overflow: visible;
+
+                padding: 12px 10px;
+            }
+
+
+            h1 {
+
+                font-size: 21px;
+
+                margin-bottom: 7px;
+            }
+
+
+            .word {
+
+                min-height: 46px;
+
+                font-size: 25px;
+
+                margin-bottom: 3px;
+            }
+
+
+            .word span {
+
+                width: 25px;
+
+                min-width: 25px;
+
+                height: 35px;
+
+                flex-basis: 25px;
+            }
+
+
+            .status {
+
+                font-size: 16px;
+
+                margin-top: 5px;
+
+                min-height: 21px;
+            }
+
+
+            .gallows-container {
+
+                margin-top: 4px;
+            }
+
+
+            #gallowsImage {
+
+                width: 130px;
+
+                max-height: 120px;
+            }
+
+
+            /* Tastatur */
+
+            .keyboard {
+
+                margin-top: 7px;
+
+                gap: 4px;
+            }
+
+
+            .keyboard-row {
+
+                gap: 4px;
+            }
+
+
+            .bottom-buttons {
+
+                margin-top: 8px;
+
+                gap: 5px;
+            }
+
+
+            .reset-btn,
+            .goBack-btn {
+
+                height: 34px;
+
+                min-height: 34px;
+
+                line-height: 34px;
+
+                font-size: 12px;
+
+                padding: 0 12px;
+            }
+        }
+
+
+        /* =========================================
+           SEHR KLEINE HANDYS
+           ========================================= */
+
+        @media (max-width: 380px) {
+
+            .game-container {
+
+                width: 98vw;
+
+                padding: 9px 6px;
+            }
+
+
+            h1 {
+
+                font-size: 19px;
+
+                margin-bottom: 5px;
+            }
+
+
+            .word {
+
+                font-size: 22px;
+
+                line-height: 1.3;
+
+                min-height: 42px;
+            }
+
+
+            .word span {
+
+                width: 22px;
+
+                min-width: 22px;
+
+                height: 31px;
+
+                flex-basis: 22px;
+            }
+
+
+            .status {
+
+                font-size: 15px;
+            }
+
+
+            #gallowsImage {
+
+                width: 105px;
+
+                max-height: 95px;
+            }
+
+
+            .keyboard {
+
+                gap: 3px;
+            }
+
+
+            .keyboard-row {
+
+                gap: 3px;
+            }
+
+
+            .reset-btn,
+            .goBack-btn {
+
+                height: 32px;
+
+                min-height: 32px;
+
+                line-height: 32px;
+
+                font-size: 11px;
+
+                padding: 0 10px;
+            }
+        }
+
+
+        /* =========================================
+           SEHR GERINGE HÖHE
+           ========================================= */
+
+        @media (max-height: 600px) {
+
+            body {
+
+                padding-top: 5px;
+            }
+
+
+            .game-container {
+
+                padding: 7px;
+            }
+
+
+            h1 {
+
+                margin-bottom: 3px;
+
+                font-size: 18px;
+            }
+
+
+            .word {
+
+                min-height: 38px;
+
+                margin-bottom: 2px;
+
+                font-size: 21px;
+            }
+
+
+            .status {
+
+                margin-top: 2px;
+
+                min-height: 18px;
+
+                font-size: 14px;
+            }
+
+
+            .gallows-container {
+
+                margin-top: 2px;
+            }
+
+
+            #gallowsImage {
+
+                width: 85px;
+
+                max-height: 75px;
+            }
+
+
+            .keyboard {
+
+                margin-top: 4px;
+
+                gap: 2px;
+            }
+
+
+            .keyboard-row {
+
+                gap: 2px;
+            }
+
+
+            .bottom-buttons {
+
+                margin-top: 4px;
+            }
+        }
