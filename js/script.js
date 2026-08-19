@@ -1,0 +1,798 @@
+/* =========================================
+           SPIELVARIABLEN
+           ========================================= */
+
+        let selectedWord = '';
+
+        let guessedLetters = [];
+
+        let incorrectLetters = [];
+
+        let remainingAttempts = 10;
+
+        let gameOver = false;
+
+
+        /* =========================================
+           GALGENBILDER
+
+           0 Fehler  = hm01
+           1 Fehler  = hm02
+           ...
+           9 Fehler  = hm010
+           10 Fehler = hm011
+           ========================================= */
+
+        const gallowsImages = [
+
+            "images/hm01.png",
+            "images/hm02.png",
+            "images/hm03.png",
+            "images/hm04.png",
+            "images/hm05.png",
+            "images/hm06.png",
+            "images/hm07.png",
+            "images/hm08.png",
+            "images/hm09.png",
+            "images/hm010.png",
+            "images/hm011.png"
+
+        ];
+
+// =========================================
+// BILDER VORLADEN
+// =========================================
+
+gallowsImages.forEach(src => {
+    const img = new Image();
+    img.src = src;
+});
+
+// Siegerbild ebenfalls vorladen
+const winnerImage = new Image();
+winnerImage.src = "images/siegerbild.png";
+
+// Hintergrund vorladen
+const backgroundImage = new Image();
+backgroundImage.src = "images/Friedhof.png";
+
+
+        /* =========================================
+           HTML-ELEMENTE
+           ========================================= */
+
+        const gameTitle =
+            document.getElementById('gameTitle');
+
+        const wordDisplay =
+            document.getElementById('wordDisplay');
+
+        const statusEl =
+            document.getElementById('status');
+
+        const gallowsImage =
+            document.getElementById(
+                'gallowsImage'
+            );
+
+        const keyboard =
+            document.getElementById('keyboard');
+
+        const keyButtons =
+            document.querySelectorAll('.key');
+
+        const resetButton =
+    	    document.getElementById('resetButton');
+
+
+        /* =========================================
+           KATEGORIE AUS URL
+           ========================================= */
+
+        const urlParams =
+            new URLSearchParams(
+                window.location.search
+            );
+
+        const category =
+            urlParams.get('category');
+
+
+        /* =========================================
+           KATEGORIE PRÜFEN
+           ========================================= */
+
+        if (
+            !category ||
+            !wordList[category]
+        ) {
+
+            window.location.href =
+                "index.html";
+
+        }
+
+
+        /* =========================================
+           KATEGORIE-TITEL
+           ========================================= */
+
+        const categoryName =
+            category.charAt(0).toUpperCase() +
+            category.slice(1);
+
+        gameTitle.textContent =
+            `Hangman - ${categoryName}`;
+
+
+        /* =========================================
+           WORTLISTE
+           ========================================= */
+
+        const selectedList =
+            wordList[category];
+
+
+        /* =========================================
+           TASTEN ZURÜCKSETZEN
+           ========================================= */
+
+        function resetKeyboard() {
+
+            keyButtons.forEach(
+                button => {
+
+                    button.disabled = false;
+
+                    button.classList.remove(
+                        'correct',
+                        'incorrect',
+                        'animate'
+                    );
+
+                    button.classList.add(
+                        'available'
+                    );
+                }
+            );
+        }
+
+
+        /* =========================================
+           SPIEL STARTEN
+           ========================================= */
+
+        function startGame() {
+
+            if (
+                !selectedList ||
+                selectedList.length === 0
+            ) {
+
+                window.location.href =
+                "index.html";
+
+                return;
+            }
+
+
+            /* Zufälliges Wort */
+
+            selectedWord =
+                selectedList[
+                    Math.floor(
+                        Math.random() *
+                        selectedList.length
+                    )
+                ].toLowerCase();
+
+
+            /* Buchstaben zurücksetzen */
+
+            guessedLetters = [];
+
+            incorrectLetters = [];
+
+
+            /* Versuche */
+
+            remainingAttempts = 10;
+
+
+            /* Spielstatus */
+
+            gameOver = false;
+
+
+            /* CSS zurücksetzen */
+
+            wordDisplay.classList.remove(
+                'lose'
+            );
+
+            statusEl.classList.remove(
+                'win-message',
+                'lose-message'
+            );
+
+
+	    resetButton.textContent = "Reset";
+	    resetButton.classList.remove("new-round");
+
+
+            /* Tastatur zurücksetzen */
+
+            resetKeyboard();
+
+
+            /* Galgen zurücksetzen */
+
+            gallowsImage.src =
+                gallowsImages[0];
+
+
+            /* Anzeige */
+
+            updateDisplay();
+
+
+            statusEl.textContent =
+                "Versuche, das Wort zu erraten!";
+        }
+
+
+        /* =========================================
+           WORT ANZEIGEN
+           ========================================= */
+
+        function updateWordDisplay() {
+
+            wordDisplay.innerHTML = '';
+
+
+            for (
+                let i = 0;
+                i < selectedWord.length;
+                i++
+            ) {
+
+                const letterSpan =
+                    document.createElement(
+                        'span'
+                    );
+
+
+                const letter =
+                    selectedWord[i];
+
+
+                /*
+                 * Leerzeichen und Sonderzeichen
+                 * automatisch anzeigen
+                 */
+
+                if (
+                    letter === ' ' ||
+                    letter === '-' ||
+                    letter === '/'
+                ) {
+
+                    letterSpan.textContent =
+                        letter;
+                }
+
+
+                /*
+                 * Geratener Buchstabe
+                 */
+
+                else if (
+                    guessedLetters.includes(
+                        letter
+                    )
+                ) {
+
+                    letterSpan.textContent =
+                        i === 0
+                            ? letter.toUpperCase()
+                            : letter;
+                }
+
+
+                /*
+                 * Noch nicht geraten
+                 */
+
+                else {
+
+                    letterSpan.textContent =
+                        '_';
+                }
+
+
+                wordDisplay.appendChild(
+                    letterSpan
+                );
+            }
+        }
+
+
+        /* =========================================
+           ANZEIGE AKTUALISIEREN
+           ========================================= */
+
+        function updateDisplay() {
+
+            updateWordDisplay();
+
+
+            if (!gameOver) {
+
+                statusEl.textContent =
+                    `Versuche übrig: ${remainingAttempts}`;
+            }
+        }
+
+
+        /* =========================================
+           GEWINN PRÜFEN
+           ========================================= */
+
+        function hasWon() {
+
+            for (
+                let i = 0;
+                i < selectedWord.length;
+                i++
+            ) {
+
+                const letter =
+                    selectedWord[i];
+
+
+                /*
+                 * Sonderzeichen zählen
+                 * nicht als zu erratende Zeichen
+                 */
+
+                if (
+                    letter === ' ' ||
+                    letter === '-' ||
+                    letter === '/'
+                ) {
+
+                    continue;
+                }
+
+
+                if (
+                    !guessedLetters.includes(
+                        letter
+                    )
+                ) {
+
+                    return false;
+                }
+            }
+
+
+            return true;
+        }
+
+
+        /* =========================================
+           BUCHSTABE RATEN
+           ========================================= */
+
+        function guessLetter(letter) {
+
+            if (gameOver) {
+                return;
+            }
+
+
+            letter =
+                letter.toLowerCase();
+
+
+            /* =====================================
+               UNGÜLTIGER BUCHSTABE
+               ===================================== */
+
+            if (
+                !/^[a-z]$/.test(letter)
+            ) {
+
+                return;
+            }
+
+
+            /* =====================================
+               SCHON BENUTZT
+               ===================================== */
+
+            if (
+    		guessedLetters.includes(letter) ||
+    		incorrectLetters.includes(letter)
+	    ) {
+    		return;
+	    }
+
+
+            /* =====================================
+               PASSENDE TASTE FINDEN
+               ===================================== */
+
+            const button =
+                document.querySelector(
+                    `.key[data-letter="${letter}"]`
+                );
+
+
+            /* =====================================
+               RICHTIG
+               ===================================== */
+
+            if (
+                selectedWord.includes(letter)
+            ) {
+
+                guessedLetters.push(
+                    letter
+                );
+
+
+                if (button) {
+
+                    button.disabled = true;
+
+                    button.classList.remove(
+                        'available'
+                    );
+
+                    button.classList.add(
+                        'correct'
+                    );
+
+                    button.classList.remove(
+                        'animate'
+                    );
+
+                    void button.offsetWidth;
+
+                    button.classList.add(
+                        'animate'
+                    );
+                }
+
+
+                updateDisplay();
+
+
+                /* Gewonnen? */
+
+                if (hasWon()) {
+
+                    winGame();
+
+                    return;
+                }
+            }
+
+
+            /* =====================================
+               FALSCH
+               ===================================== */
+
+            else {
+
+                incorrectLetters.push(
+                    letter
+                );
+
+
+                remainingAttempts--;
+
+
+                if (button) {
+
+                    button.disabled = true;
+
+                    button.classList.remove(
+                        'available'
+                    );
+
+                    button.classList.add(
+                        'incorrect'
+                    );
+
+                    button.classList.remove(
+                        'animate'
+                    );
+
+                    void button.offsetWidth;
+
+                    button.classList.add(
+                        'animate'
+                    );
+                }
+
+
+                /* =================================
+                   GALGENBILD
+                   ================================= */
+
+                const errorCount =
+                    10 - remainingAttempts;
+
+
+                gallowsImage.src =
+                    gallowsImages[
+                        Math.min(
+                            errorCount,
+                            gallowsImages.length - 1
+                        )
+                    ];
+
+
+                updateDisplay();
+
+
+                /* =================================
+                   VERLOREN?
+                   ================================= */
+
+                if (
+                    remainingAttempts <= 0
+                ) {
+
+                    loseGame();
+
+                    return;
+                }
+            }
+        }
+
+
+        /* =========================================
+           GEWONNEN
+           ========================================= */
+
+        function winGame() {
+
+            gameOver = true;
+
+
+            statusEl.textContent =
+                "Du hast gewonnen!";
+
+
+            statusEl.classList.remove(
+                'lose-message'
+            );
+
+
+            statusEl.classList.add(
+                'win-message'
+            );
+
+
+            resetButton.textContent = "Neue Runde";
+	    resetButton.classList.add("new-round");
+
+
+            /* Siegerbild */
+
+            gallowsImage.src =
+                "images/siegerbild.png";
+
+
+            /* Alle Tasten deaktivieren */
+
+            keyButtons.forEach(
+                button => {
+
+                    button.disabled = true;
+                }
+            );
+
+
+            /*
+             * Wort nochmal vollständig anzeigen
+             */
+
+            updateWordDisplay();
+        }
+
+
+        /* =========================================
+           VERLOREN
+           ========================================= */
+
+        function loseGame() {
+
+            gameOver = true;
+
+
+            statusEl.textContent =
+                "Du hast verloren!";
+
+
+            statusEl.classList.remove(
+                'win-message'
+            );
+
+
+            statusEl.classList.add(
+                'lose-message'
+            );
+
+
+            wordDisplay.classList.add(
+                'lose'
+            );
+
+
+            /* Ganzes Wort anzeigen */
+
+            wordDisplay.innerHTML = '';
+
+
+            for (
+                let i = 0;
+                i < selectedWord.length;
+                i++
+            ) {
+
+                const letterSpan =
+                    document.createElement(
+                        'span'
+                    );
+
+
+                letterSpan.textContent =
+                    selectedWord[i] === ' '
+                        ? ' '
+                        : selectedWord[i]
+                            .toUpperCase();
+
+
+                wordDisplay.appendChild(
+                    letterSpan
+                );
+            }
+
+	    
+            resetButton.textContent = "Neue Runde";
+	    resetButton.classList.add("new-round");
+
+
+            /* Letztes Galgenbild */
+
+            gallowsImage.src =
+                gallowsImages[
+                    gallowsImages.length - 1
+                ];
+
+
+            /* Alle Tasten deaktivieren */
+
+            keyButtons.forEach(
+                button => {
+
+                    button.disabled = true;
+                }
+            );
+        }
+
+
+        /* =========================================
+           ZURÜCK
+           ========================================= */
+
+        function goBack() {
+
+            window.location.href =
+                "index.html";
+        }
+
+
+        /* =========================================
+           RESET
+           ========================================= */
+
+        function resetGame() {
+
+            startGame();
+        }
+
+
+        /* =========================================
+           BILDSCHIRM-TASTATUR
+           ========================================= */
+
+        keyButtons.forEach(
+            button => {
+
+                button.addEventListener(
+                    'click',
+                    function() {
+
+                        const letter =
+                            this.dataset.letter;
+
+                        guessLetter(
+                            letter
+                        );
+                    }
+                );
+            }
+        );
+
+
+        /* =========================================
+           ECHTE TASTATUR
+           ========================================= */
+
+        document.addEventListener(
+            'keydown',
+            function(event) {
+
+                /*
+                 * Nur A-Z akzeptieren
+                 */
+
+                if (
+                    /^[a-zA-Z]$/.test(
+                        event.key
+                    )
+                ) {
+
+                    event.preventDefault();
+
+
+                    guessLetter(
+                        event.key
+                    );
+
+                    return;
+                }
+
+
+                /*
+                 * Enter = neues Spiel
+                 * wenn Spiel vorbei
+                 */
+
+                if (
+                    event.key === 'Enter' &&
+                    gameOver
+                ) {
+
+                    event.preventDefault();
+
+                    resetGame();
+                }
+            }
+        );
+
+
+        /* =========================================
+           GALGENBILD FEHLER ERKENNEN
+           ========================================= */
+
+        gallowsImage.onerror =
+            function() {
+
+                console.error(
+                    "Galgenbild konnte nicht geladen werden:",
+                    this.src
+                );
+            };
+
+
+        /* =========================================
+           SPIEL STARTEN
+           ========================================= */
+
+        startGame();
